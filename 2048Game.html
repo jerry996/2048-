@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>2048game</title>
+	<style>
+		*{
+			padding: 0;
+			margin: 0;
+			list-style: none;
+		}
+		.score{
+			margin: 20px auto 10px 420px;
+			height: 20px;
+			/*text-align: center;*/
+			line-height: 20px;
+			color: #000;
+			font-size: 25px;
+		}
+		.wrapper{
+			width: 500px;
+			height: 500px;
+			border-radius: 10px;
+			background: orange;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-top: -250px;
+			margin-left: -250px;
+		}
+		.block{
+			width: 112px;
+			height: 112px;
+			background: #ccc;
+			border-radius: 10px;
+			float: left;
+			margin:6px;
+
+		}
+		.fir{
+			background: #fcf;
+			font-size: 50px;
+			text-align: center;
+			line-height: 112px;
+		}
+	</style>
+</head>
+<body>
+	<div class="score">
+		Score：
+		<span>0</span>
+	</div>
+	<div class="wrapper" id="wrapper"></div>
+
+
+	
+	<script>
+	//生成4*4 16个格子
+	//上下左右控制数字移动的方向
+	//先随机生成两个数，2或者4，每次操作一次键盘事件就新生成一个数
+	
+	//如果数字相同就相加，不同的数字颜色不同，数字越大颜色越深
+	var wrapper = document.getElementById('wrapper');
+	var block = document.getElementsByClassName('block');
+	var fir = document.getElementsByClassName('fir');
+	var score = document.getElementsByTagName('span')[0];
+
+	init();
+	function init() {
+		for(var i = 0; i < 4; i++) {
+			for(var j = 0; j < 4; j++) {
+				var oDiv = document.createElement('div');
+				oDiv.classList.add('block');
+				oDiv.setAttribute('id', i + '-' + j);
+				wrapper.appendChild(oDiv);
+				// blockMap.push({map: 0})
+			}
+			
+		}
+		bindEvent();
+		
+		random();
+		random();
+	}
+	function random() {
+		var num = Math.floor(Math.random() * 16);//0-15
+		// console.log(block[num])
+			if(block[num].classList[1] !== 'fir') {
+				block[num].classList.add('fir');
+				block[num].innerHTML = (Math.random() > 0.5)? 4 : 2;
+			}else{
+				random()
+			}
+	}
+	function bindEvent() {
+		document.onkeydown = function (e) {
+			switch(e.keyCode) {
+				case 37:
+					toLeft()
+					random()
+					maxNum()
+					break;
+				case 38:
+					toTop()
+					random()
+					maxNum()
+					break;
+				case 39:
+					toRight()
+					random()
+					maxNum()
+					break;
+				case 40:
+					toDown()
+					random()
+					maxNum()
+					break;
+
+			}
+		}
+	}
+	function toDown() {
+	 	var now;
+		var next;
+		//获取格子里的数字，处理当前格子和下一位格子
+		for(var i = 0; i < fir.length ; i++) {
+			var n = fir[i].innerHTML;
+			// console.log(n)
+			now = fir[i].id;
+			var x = fir[i].id.split('-')[0];
+			var y = fir[i].id.split('-')[1];
+			var now = document.getElementById(x+'-'+y);
+			if(x != 3 ) {
+				x++;
+				next = x+'-'+y;
+			}
+			var next = document.getElementById(x+'-'+y);
+
+		//在不是边界的情况下，下一次里面没有数字就向下运动，有数字判断是否相等，相等就相加
+
+		//相邻有数字就进行合并
+		// console.log(now, next)
+		if(next.innerHTML != '' && next.innerHTML == now.innerHTML && next.id != now.id) {
+			var n = Number(next.innerHTML) +Number(next.innerHTML);
+			next.innerHTML = n;
+			now.innerHTML = '';
+			var splitId = next.id.split('-')
+			sX = splitId[0] - 1;
+			sY = splitId[1]
+			var nowId = document.getElementById(sX+'-'+sY);
+			nowId.classList.value = 'block';
+			console.log(now)
+			console.log(nowId)
+		}
+		// 向下递归调用
+		if(next.id != now.id && next.innerHTML == '') {
+			now.innerHTML = null;
+			now.classList.remove('fir')
+			next.classList.add('fir');
+			next.innerHTML = n;
+			toDown();
+			}
+		}
+	}
+ 	function toTop() {
+	 	var now;
+		var next;
+		for(var i = 0; i < fir.length ; i++) {
+			var n = fir[i].innerHTML;
+			now = fir[i].id;
+			var x = fir[i].id.split('-')[0];
+			var y = fir[i].id.split('-')[1];
+			var now = document.getElementById(x+'-'+y);
+			if(x != 0 ) {
+				x--;
+				next = x+'-'+y;
+			}else{
+				next = now
+			}
+			var next = document.getElementById(x+'-'+y);
+
+
+			if(next.innerHTML != '' && next.innerHTML == now.innerHTML) {
+				if(next.id != now.id) {
+					var n = Number(next.innerHTML) +Number(next.innerHTML);
+					next.innerHTML = n;
+					now.innerHTML = '';
+					var splitId = next.id.split('-')
+					sX = Number(splitId[0]) + 1;
+					sY = splitId[1];
+					var nextId = document.getElementById(sX+'-'+sY);
+					console.log(sX, sY)
+					nextId.classList.value = 'block';
+				}
+			}
+
+		
+		if(next.id != now.id && next.innerHTML == '') {
+			now.innerHTML = null;
+			now.classList.remove('fir')
+			next.classList.add('fir');
+			next.innerHTML = n;
+			toTop();
+			}
+		}
+	}
+	function toLeft() {
+	 	var now;
+		var next;
+		for(var i = 0; i < fir.length ; i++) {
+			var n = fir[i].innerHTML;
+			now = fir[i].id;
+			var x = fir[i].id.split('-')[0];
+			var y = fir[i].id.split('-')[1];
+			var now = document.getElementById(x+'-'+y);
+			if(y != 0 ) {
+				y--;
+				next = x+'-'+y;
+			}else{
+				next = now
+			}
+			var next = document.getElementById(x+'-'+y);
+
+
+			if(next.innerHTML != '' && next.innerHTML == now.innerHTML) {
+				if(next.id != now.id) {
+					var n = Number(next.innerHTML) +Number(next.innerHTML);
+					next.innerHTML = n;
+					now.innerHTML = '';
+					var splitId = next.id.split('-')
+					sX = splitId[0];
+					sY = Number(splitId[1]) + 1;
+					var nextId = document.getElementById(sX+'-'+sY);
+					nextId.classList.value = 'block';
+				}
+			}
+		if(next.id != now.id && next.innerHTML == '') {
+			now.innerHTML = null;
+			now.classList.remove('fir')
+			next.classList.add('fir');
+			next.innerHTML = n;
+			toLeft()
+			}
+		}
+	}
+	function toRight() {
+	 	var now;
+		var next;
+		for(var i = 0; i < fir.length ; i++) {
+			var n = fir[i].innerHTML;
+			now = fir[i].id;
+			var x = fir[i].id.split('-')[0];
+			var y = fir[i].id.split('-')[1];
+			var now = document.getElementById(x+'-'+y);
+			if(y != 3 ) {
+				y++;
+				next = x+'-'+y;
+			}else{
+				next = now
+			}
+			var next = document.getElementById(x+'-'+y);
+
+			if(next.innerHTML != '' && next.innerHTML == now.innerHTML) {
+				if(next.id != now.id) {
+					var n = Number(next.innerHTML) +Number(next.innerHTML);
+					next.innerHTML = n;
+					now.innerHTML = '';
+					var splitId = next.id.split('-')
+					sX = splitId[0];
+					sY = Number(splitId[1]) - 1;
+					var nextId = document.getElementById(sX+'-'+sY);
+					// console.log(sX, sY)
+					nextId.classList.value = 'block';
+				}
+			}
+
+		
+		if(next.id != now.id && next.innerHTML == '') {
+			now.innerHTML = null;
+			now.classList.remove('fir')
+			next.classList.add('fir');
+			next.innerHTML = n;
+			toRight()
+			}
+		}
+	}
+
+
+	function maxNum() {
+		var arr = [];
+		for(var i = 0; i < 16; i++) {
+			arr.push(block[i].innerHTML);
+		}
+		arr.sort(function (a, b) {
+			return b - a;
+		})
+		score.innerHTML = arr[0]
+		// return arr[0];
+	}
+
+	
+
+
+
+
+
+
+	</script>
+</body>
+</html>
